@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Word Display | GitHub Auth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .description {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .word-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            font-size: 1.8rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-all;
+            position: relative;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #4CAF50, #2E8B57);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .github-btn {
+            background: linear-gradient(90deg, #333, #24292e);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+        }
+        
+        .copy-btn {
+            background: linear-gradient(90deg, #2196F3, #0D47A1);
+        }
+        
+        .admin-panel {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .admin-panel h2 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .login-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        input {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .simulated-data {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .word-display {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fab fa-github"></i> Secure Word Display</h1>
+        
+        <p class="description">
+            This page displays words from a secure repository. Only authenticated GitHub users can modify the content.
+        </p>
+        
+        <div class="login-section" id="loginSection">
+            <h2>GitHub Authentication Required</h2>
+            <p>Please sign in with your GitHub credentials to access admin features</p>
+            
+            <div class="login-form">
+                <input type="text" id="username" placeholder="GitHub Username">
+                <input type="password" id="password" placeholder="Access Token">
+                <button class="github-btn" id="loginBtn">
+                    <i class="fab fa-github"></i> Sign In with GitHub
+                </button>
+            </div>
+            
+            <p style="margin-top: 15px; font-size: 0.9rem;">
+                <i>Note: This is a simulation. In a real implementation, this would use GitHub OAuth.</i>
+            </p>
+        </div>
+        
+        <div class="word-display" id="wordDisplay">
+            <!-- Current word will be displayed here -->
+        </div>
+        
+        <div class="controls">
+            <button class="copy-btn" id="copyBtn">
+                <i class="fas fa-copy"></i> Copy Current Word
+            </button>
+            <button class="github-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh Word
+            </button>
+        </div>
+        
+        <div class="admin-panel" id="adminPanel">
+            <h2><i class="fas fa-lock"></i> Admin Panel</h2>
+            <p>Modify the secure word repository:</p>
+            
+            <textarea id="fileContent" placeholder="Enter word list (one word per line)"></textarea>
+            
+            <div class="controls">
+                <button class="github-btn" id="saveBtn">
+                    <i class="fas fa-save"></i> Save to Repository
+                </button>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+        
+        <div class="simulated-data">
+            <h3>Simulated Secure Data:</h3>
+            <p>In a real implementation, this would connect to a GitHub repository via API.</p>
+            <p>Authentication would be handled through GitHub OAuth app with appropriate permissions.</p>
+            <p>The word list would be stored in a file like "words.txt" in the repository.</p>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // Simulated word list (in a real implementation, this would come from a GitHub repo)
+        let wordList = ["Authentication", "Encryption", "Security", "Firewall", "Blockchain", "Biometrics", "ZeroTrust", "OAuth", "Token", "API"];
+        let currentWord = "";
+        let isAuthenticated = false;
+        
+        // DOM elements
+        const wordDisplay = document.getElementById('wordDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const loginSection = document.getElementById('loginSection');
+        const adminPanel = document.getElementById('adminPanel');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const fileContent = document.getElementById('fileContent');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        // Initialize the page
+        function init() {
+            // Load a random word
+            loadRandomWord();
+            
+            // Check if user was previously authenticated (simulated)
+            const savedAuth = localStorage.getItem('githubAuth');
+            if (savedAuth) {
+                try {
+                    const authData = JSON.parse(savedAuth);
+                    if (authData.expires > Date.now()) {
+                        authenticateUser(authData.username);
+                    }
+                } catch (e) {
+                    localStorage.removeItem('githubAuth');
+                }
+            }
+            
+            // Initialize the file content with current words
+            fileContent.value = wordList.join('\n');
+        }
+        
+        // Load a random word from the list
+        function loadRandomWord() {
+            if (wordList.length > 0) {
+                const randomIndex = Math.floor(Math.random() * wordList.length);
+                currentWord = wordList[randomIndex];
+                wordDisplay.textContent = currentWord;
+            } else {
+                wordDisplay.textContent = "No words available";
+            }
+        }
+        
+        // Copy the current word to clipboard
+        function copyToClipboard() {
+            if (!currentWord) return;
+            
+            navigator.clipboard.writeText(currentWord)
+                .then(() => {
+                    showNotification('Word copied to clipboard!');
+                })
+                .catch(err => {
+                    // Fallback method for clipboard copy
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentWord;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Word copied to clipboard!');
+                });
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Simulate GitHub authentication
+        function authenticateUser(username) {
+            isAuthenticated = true;
+            loginSection.style.display = 'none';
+            adminPanel.style.display = 'block';
+            
+            // Simulate storing authentication data
+            const authData = {
+                username: username,
+                token: 'simulated_oauth_token',
+                expires: Date.now() + (60 * 60 * 1000) // 1 hour from now
+            };
+            
+            localStorage.setItem('githubAuth', JSON.stringify(authData));
+            showNotification(`Authenticated as ${username}`);
+        }
+        
+        // Simulate logout
+        function logout() {
+            isAuthenticated = false;
+            loginSection.style.display = 'block';
+            adminPanel.style.display = 'none';
+            localStorage.removeItem('githubAuth');
+            showNotification('Successfully logged out');
+        }
+        
+        // Simulate saving to GitHub repository
+        function saveToRepository() {
+            if (!isAuthenticated) {
+                showNotification('You must be authenticated to save changes');
+                return;
+            }
+            
+            const content = fileContent.value.trim();
+            if (!content) {
+                showNotification('Cannot save empty content');
+                return;
+            }
+            
+            // Update the word list
+            wordList = content.split('\n').filter(word => word.trim() !== '');
+            
+            // Save to localStorage to simulate GitHub API call
+            localStorage.setItem('secureWordList', JSON.stringify(wordList));
+            
+            // Load a new random word
+            loadRandomWord();
+            
+            showNotification('Changes saved to repository successfully!');
+        }
+        
+        // Event listeners
+        copyBtn.addEventListener('click', copyToClipboard);
+        refreshBtn.addEventListener('click', loadRandomWord);
+        
+        loginBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!username || !password) {
+                showNotification('Please enter both username and access token');
+                return;
+            }
+            
+            // Simulate authentication process
+            setTimeout(() => {
+                authenticateUser(username);
+            }, 800);
+        });
+        
+        logoutBtn.addEventListener('click', logout);
+        saveBtn.addEventListener('click', saveToRepository);
+        
+        // Check if there's saved word list in localStorage
+        const savedWordList = localStorage.getItem('secureWordList');
+        if (savedWordList) {
+            try {
+                wordList = JSON.parse(savedWordList);
+                fileContent.value = wordList.join('\n');
+            } catch (e) {
+                console.error('Error loading saved word list:', e);
+            }
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
