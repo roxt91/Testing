@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Match - Live Players</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .live-players {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 4px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        #game-tab {
+            display: block;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .color-word {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            transition: transform 0.2s;
+            height: 60px;
+        }
+        
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .color-option {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-option:hover, .color-option:active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #4CAF50, #2E8B57);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #restartButton {
+            background: linear-gradient(90deg, #FFA500, #FF8C00);
+        }
+        
+        #gameOver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .game-over-content {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .leaderboard {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .leaderboard h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+        
+        .leaderboard-list {
+            list-style-type: none;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .leaderboard-item:nth-child(1) {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .leaderboard-item:nth-child(2) {
+            background: linear-gradient(90deg, #C0C0C0, #A9A9A9);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .leaderboard-item:nth-child(3) {
+            background: linear-gradient(90deg, #CD7F32, #8B4513);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .score-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .player-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .player-notification.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .color-option {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .color-word {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .live-players {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                width: fit-content;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes livePulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Color Match Challenge</h1>
+            <p>Match the word meaning with the correct color!</p>
+            <div class="live-players">
+                <div class="live-dot"></div>
+                <span id="playerCount">0</span> players online
+            </div>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" id="game-tab-btn">Game</div>
+            <div class="tab" id="leaderboard-tab-btn">Leaderboard</div>
+        </div>
+        
+        <div class="tab-content" id="game-tab">
+            <div class="game-info">
+                <div>Score: <span id="score">0</span></div>
+                <div>Time: <span id="time">30</span>s</div>
+            </div>
+            
+            <div class="color-word" id="colorWord">RED</div>
+            
+            <div class="color-options" id="colorOptions">
+                <!-- Color options will be generated here -->
+            </div>
+            
+            <div class="controls">
+                <button id="startButton">Start Game</button>
+                <button id="restartButton">Restart</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="leaderboard-tab">
+            <div class="leaderboard">
+                <h2>Top Scores</h2>
+                <ul class="leaderboard-list" id="leaderboardList">
+                    <!-- Leaderboard items will be generated here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div id="gameOver">
+        <div class="game-over-content">
+            <h2>Game Over!</h2>
+            <p>Your score: <span id="finalScore">0</span></p>
+            
+            <div class="score-form">
+                <input type="text" id="playerName" placeholder="Enter your name" maxlength="15">
+                <button id="saveScore">Save Score</button>
+            </div>
+            
+            <button id="playAgain" style="margin-top: 15px;">Play Again</button>
+        </div>
+    </div>
+    
+    <div class="player-notification" id="playerNotification">
+        <i class="fas fa-user"></i>
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let timeLeft = 30;
+        let timer;
+        let isPlaying = false;
+        let colors = ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PURPLE', 'ORANGE'];
+        let colorValues = {
+            'RED': '#FF0000',
+            'BLUE': '#0000FF',
+            'GREEN': '#00FF00',
+            'YELLOW': '#FFFF00',
+            'PURPLE': '#800080',
+            'ORANGE': '#FFA500'
+        };
+        
+        // Online players simulation
+        let onlinePlayers = Math.floor(Math.random() * 50) + 20; // Start with 20-70 players
+        let playerNames = ['Alex', 'Taylor', 'Jordan', 'Casey', 'Morgan', 'Riley', 'Quinn', 'Avery', 'Peyton', 'Dakota', 'Skyler', 'Rowan', 'Charlie', 'Emerson', 'Finley', 'Hayden', 'Jamie', 'Kai', 'Logan', 'Parker'];
+        
+        // DOM elements
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const colorWordElement = document.getElementById('colorWord');
+        const colorOptionsElement = document.getElementById('colorOptions');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const gameOverElement = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const playAgainButton = document.getElementById('playAgain');
+        const saveScoreButton = document.getElementById('saveScore');
+        const playerNameInput = document.getElementById('playerName');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const gameTabBtn = document.getElementById('game-tab-btn');
+        const leaderboardTabBtn = document.getElementById('leaderboard-tab-btn');
+        const gameTab = document.getElementById('game-tab');
+        const leaderboardTab = document.getElementById('leaderboard-tab');
+        const playerCountElement = document.getElementById('playerCount');
+        const playerNotification = document.getElementById('playerNotification');
+        const notificationText = document.getElementById('notificationText');
+        
+        // Initialize the game
+        function initGame() {
+            score = 0;
+            timeLeft = 30;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            
+            // Generate color options
+            generateColorOptions();
+            
+            // Start the timer
+            startTimer();
+        }
+        
+        // Generate color options
+        function generateColorOptions() {
+            colorOptionsElement.innerHTML = '';
+            
+            // Shuffle colors array
+            const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+            
+            // Get a random color for the word
+            const wordColor = shuffledColors[Math.floor(Math.random() * shuffledColors.length)];
+            colorWordElement.textContent = wordColor;
+            
+            // Set text color to a different random color
+            const textColor = shuffledColors.filter(color => color !== wordColor)[0];
+            colorWordElement.style.color = colorValues[textColor];
+            
+            // Create color option elements
+            shuffledColors.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = colorValues[color];
+                colorOption.dataset.color = color;
+                
+                colorOption.addEventListener('click', () => {
+                    if (!isPlaying) return;
+                    
+                    if (color === wordColor) {
+                        // Correct answer
+                        score++;
+                        scoreElement.textContent = score;
+                        colorWordElement.classList.add('pulse');
+                        setTimeout(() => {
+                            colorWordElement.classList.remove('pulse');
+                            generateColorOptions();
+                        }, 300);
+                        
+                        // Simulate other players scoring
+                        if (Math.random() > 0.7) {
+                            simulateOtherPlayerScoring();
+                        }
+                    } else {
+                        // Wrong answer
+                        colorOption.classList.add('shake');
+                        setTimeout(() => {
+                            colorOption.classList.remove('shake');
+                        }, 300);
+                    }
+                });
+                
+                colorOptionsElement.appendChild(colorOption);
+            });
+        }
+        
+        // Start the timer
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // End the game
+        function endGame() {
+            clearInterval(timer);
+            isPlaying = false;
+            finalScoreElement.textContent = score;
+            gameOverElement.style.display = 'flex';
+        }
+        
+        // Save score to leaderboard
+        function saveScore() {
+            const playerName = playerNameInput.value.trim() || 'Player';
+            const existingScores = JSON.parse(localStorage.getItem('colorMatchScores')) || [];
+            
+            const newScore = {
+                name: playerName,
+                score: score,
+                date: new Date().toLocaleDateString()
+            };
+            
+            existingScores.push(newScore);
+            
+            // Sort by score (descending) and keep top 10
+            existingScores.sort((a, b) => b.score - a.score);
+            const topScores = existingScores.slice(0, 10);
+            
+            localStorage.setItem('colorMatchScores', JSON.stringify(topScores));
+            
+            // Update leaderboard display
+            updateLeaderboard();
+            
+            // Hide game over screen
+            gameOverElement.style.display = 'none';
+            
+            // Show leaderboard
+            leaderboardTabBtn.click();
+        }
+        
+        // Update leaderboard display
+        function updateLeaderboard() {
+            const scores = JSON.parse(localStorage.getItem('colorMatchScores')) || [];
+            leaderboardList.innerHTML = '';
+            
+            if (scores.length === 0) {
+                leaderboardList.innerHTML = '<li class="leaderboard-item">No scores yet. Be the first!</li>';
+                return;
+            }
+            
+            scores.forEach((score, index) => {
+                const li = document.createElement('li');
+                li.className = 'leaderboard-item';
+                
+                const rank = document.createElement('span');
+                rank.textContent = `#${index + 1}`;
+                
+                const name = document.createElement('span');
+                name.textContent = score.name;
+                
+                const scoreValue = document.createElement('span');
+                scoreValue.textContent = `${score.score} points`;
+                
+                const date = document.createElement('span');
+                date.textContent = score.date;
+                
+                li.appendChild(rank);
+                li.appendChild(name);
+                li.appendChild(scoreValue);
+                li.appendChild(date);
+                
+                leaderboardList.appendChild(li);
+            });
+        }
+        
+        // Simulate online player count
+        function simulateOnlinePlayers() {
+            // Update player count with small random fluctuations
+            setInterval(() => {
+                const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+                onlinePlayers = Math.max(10, onlinePlayers + change);
+                playerCountElement.textContent = onlinePlayers;
+            }, 5000);
+            
+            // Show notifications about other players
+            setInterval(() => {
+                if (isPlaying && Math.random() > 0.5) {
+                    showPlayerNotification();
+                }
+            }, 8000);
+        }
+        
+        // Show notification about other players
+        function showPlayerNotification() {
+            const randomPlayer = playerNames[Math.floor(Math.random() * playerNames.length)];
+            const actions = [
+                `${randomPlayer} just scored a point!`,
+                `${randomPlayer} is on a winning streak!`,
+                `${randomPlayer} just joined the game`,
+                `${randomPlayer} is playing now`
+            ];
+            
+            notificationText.textContent = actions[Math.floor(Math.random() * actions.length)];
+            playerNotification.classList.add('show');
+            
+            setTimeout(() => {
+                playerNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Simulate other players scoring
+        function simulateOtherPlayerScoring() {
+            if (Math.random() > 0.6) {
+                const randomPlayer = playerNames[Math.floor(Math.random() * playerNames.length)];
+                notificationText.textContent = `${randomPlayer} also got it right!`;
+                playerNotification.classList.add('show');
+                
+                setTimeout(() => {
+                    playerNotification.classList.remove('show');
+                }, 2000);
+            }
+        }
+        
+        // Event Listeners
+        startButton.addEventListener('click', () => {
+            isPlaying = true;
+            startButton.style.display = 'none';
+            initGame();
+        });
+        
+        restartButton.addEventListener('click', () => {
+            if (isPlaying) {
+                clearInterval(timer);
+            }
+            isPlaying = true;
+            initGame();
+        });
+        
+        playAgainButton.addEventListener('click', () => {
+            gameOverElement.style.display = 'none';
+            isPlaying = true;
+            initGame();
+        });
+        
+        saveScoreButton.addEventListener('click', saveScore);
+        
+        gameTabBtn.addEventListener('click', () => {
+            gameTabBtn.classList.add('active');
+            leaderboardTabBtn.classList.remove('active');
+            gameTab.style.display = 'block';
+            leaderboardTab.style.display = 'none';
+        });
+        
+        leaderboardTabBtn.addEventListener('click', () => {
+            leaderboardTabBtn.classList.add('active');
+            gameTabBtn.classList.remove('active');
+            leaderboardTab.style.display = 'block';
+            gameTab.style.display = 'none';
+            updateLeaderboard();
+        });
+        
+        // Initialize leaderboard on load
+        updateLeaderboard();
+        
+        // Initialize online players simulation
+        playerCountElement.textContent = onlinePlayers;
+        simulateOnlinePlayers();
+    </script>
+</body>
+</html>
