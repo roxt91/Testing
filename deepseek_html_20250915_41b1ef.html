@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBX Script Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #FF7B25;
+        }
+        
+        .description {
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        .script-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #FF7B25;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            color: #FF7B25;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            background: linear-gradient(90deg, #FF7B25, #FF5500);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 123, 37, 0.4);
+        }
+        
+        .copy-btn {
+            background: linear-gradient(90deg, #2196F3, #0D47A1);
+        }
+        
+        .execute-btn {
+            background: linear-gradient(90deg, #4CAF50, #2E8B57);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .info-section {
+            background: rgba(30, 30, 70, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .warning {
+            background: rgba(255, 100, 100, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ff4d4d;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: #FF7B25;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 8px;
+        }
+        
+        .simulation {
+            background: rgba(50, 50, 50, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #FF7B25;
+        }
+        
+        .console {
+            background: black;
+            color: #00FF00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-code"></i> RBX Script Hub</h1>
+        
+        <p class="description">
+            This website provides scripts for Roblox executors. Copy the script below and execute it in your executor.
+        </p>
+        
+        <div class="script-box">
+            <code id="scriptCode">loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()</code>
+        </div>
+        
+        <div class="controls">
+            <button class="copy-btn" id="copyBtn">
+                <i class="fas fa-copy"></i> Copy Script
+            </button>
+            <button class="execute-btn" id="simulateBtn">
+                <i class="fas fa-play"></i> Simulate Execution
+            </button>
+        </div>
+        
+        <div class="warning">
+            <p><i class="fas fa-exclamation-triangle"></i> <strong>Warning:</strong> This is a simulation. Actual execution requires a Roblox executor.</p>
+        </div>
+        
+        <div class="simulation" id="simulationSection" style="display: none;">
+            <h3><i class="fas fa-terminal"></i> Execution Simulation</h3>
+            <div class="console" id="consoleOutput">
+                > Initializing script execution...<br>
+                > Connecting to GitHub repository...<br>
+                > Downloading script source...<br>
+                > Compiling Lua code...<br>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2><i class="fas fa-info-circle"></i> How to Use</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Copy the Script</strong>
+            <p>Click the "Copy Script" button to copy the script to your clipboard.</p>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Open Your Executor</strong>
+            <p>Open your Roblox executor application (must be installed separately).</p>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Paste and Execute</strong>
+            <p>Paste the script into your executor and run it.</p>
+        </div>
+        
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Enjoy the Script</strong>
+            <p>The script should now be running in your Roblox game.</p>
+        </div>
+        
+        <div class="info-section">
+            <h3><i class="fas fa-exclamation-circle"></i> Important Notes</h3>
+            <p>• This website does not execute scripts directly</p>
+            <p>• You need a separate executor program</p>
+            <p>• Some executors may require different script formats</p>
+            <p>• Scripts from untrusted sources may be unsafe</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+        
+        <div class="info-section">
+            <h3>What is a Roblox executor?</h3>
+            <p>A Roblox executor is a third-party program that allows you to run custom scripts in Roblox games.</p>
+            
+            <h3>Is using executors allowed?</h3>
+            <p>Using executors is against Roblox's Terms of Service and can result in account restrictions.</p>
+            
+            <h3>Why isn't the script executing from the website?</h3>
+            <p>Web browsers cannot directly execute Roblox scripts. You need a separate executor program.</p>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // DOM elements
+        const scriptCode = document.getElementById('scriptCode');
+        const copyBtn = document.getElementById('copyBtn');
+        const simulateBtn = document.getElementById('simulateBtn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const simulationSection = document.getElementById('simulationSection');
+        const consoleOutput = document.getElementById('consoleOutput');
+        
+        // Script to be copied
+        const script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()';
+        
+        // Initialize the page
+        function init() {
+            scriptCode.textContent = script;
+        }
+        
+        // Copy the script to clipboard
+        function copyToClipboard() {
+            navigator.clipboard.writeText(script)
+                .then(() => {
+                    showNotification('Script copied to clipboard!');
+                })
+                .catch(err => {
+                    // Fallback method for clipboard copy
+                    const textArea = document.createElement('textarea');
+                    textArea.value = script;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Script copied to clipboard!');
+                });
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Simulate script execution
+        function simulateExecution() {
+            simulationSection.style.display = 'block';
+            consoleOutput.innerHTML = '> Initializing script execution...<br>> Connecting to GitHub repository...<br>> Downloading script source...<br>> Compiling Lua code...<br>';
+            
+            setTimeout(() => {
+                consoleOutput.innerHTML += '> Loading Nameless Admin script...<br>> Successfully executed!<br>> <span class="blink">_</span>';
+                showNotification('Execution simulation completed!');
+            }, 1500);
+        }
+        
+        // Event listeners
+        copyBtn.addEventListener('click', copyToClipboard);
+        simulateBtn.addEventListener('click', simulateExecution);
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
